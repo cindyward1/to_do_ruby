@@ -3,7 +3,6 @@ require "./lib/list"
 
 def main_menu
 
-  @lists = []
   @current_list_index = 0
 
   puts "This application creates new to-do lists and adds tasks to those lists"
@@ -11,11 +10,16 @@ def main_menu
   loop do
 
     puts "\n"
-    puts "To add a new list, enter '+l'. To add a new task to the current list, enter '+t'."
-    puts "To delete a list, enter '-l'. To delete a task, enter '-t'."
-    puts "To see a list of all of your lists, enter 'l'."
-    puts "To see all the tasks for the current list, enter't'."
-    puts "To see the completed tasks for all of your lists, enter 'c'."
+    puts "List operations:"
+    puts "  +l = add a list"
+    puts "   l = lists all available lists"
+    puts "Task operations:"
+    puts "  +t = add a task to the current list"
+    puts "   t = lists all of the tasks for the current list"
+    puts "   c = shows all of the completed tasks for all available lists"
+    puts "Other operations:"
+    puts "   m = return to the main menu (this menu)"
+    puts "   x = exit the program"
     puts "\n"
 
     choice = gets.chomp
@@ -24,10 +28,6 @@ def main_menu
       add_list
     elsif choice == "+t"
       add_task
-    elsif choice == "-l"
-      delete_list
-    elsif choice == "-t"
-      delete_task
     elsif choice == "l"
       list_lists
     elsif choice == "t"
@@ -37,110 +37,170 @@ def main_menu
     elsif choice == "x"
       puts "End of to_do list program"
       exit
-    else
+    elsif choice != "m"
       puts "Invalid input, please try again!"
       puts "\n"
     end
-
   end
-
 end
+
 
 def add_list
   puts "Enter a name for your new list"
   list_name = gets.chomp
-  @lists << List.new(list_name)
+  List.new(list_name).add
+  @current_list_index = List.all.length-1
 end
 
+
 def add_task
-  puts "Enter a name for a new task for #{@lists[@current_list_index].list_name}"
-  task_name = gets.chomp
-  puts "Enter a priority (1 lowest - 5 highest) for the new task"
-  priority = gets.chomp.to_i
-  puts "Enter a due date (format yyyy-mm-dd) for the new task"
-  due_date = gets.chomp
-  new_task = Task.new(task_name, priority, due_date)
-  @lists[@current_list_index].add_task(new_task)
+
+  if List.all.empty?
+    puts "No lists entered yet!"
+  else
+    this_list = List.by_index (@current_list_index)
+    puts "Enter a name for a new task for #{this_list.list_name}"
+    task_name = gets.chomp
+    puts "Enter a priority (1 lowest - 5 highest) for the new task"
+    priority = gets.chomp.to_i
+    puts "Enter a due date (format yyyy-mm-dd) for the new task"
+    due_date = gets.chomp
+    new_task = Task.new(task_name, priority, due_date)
+    this_list.add_task(new_task)
+  end
+
 end
+
 
 def list_lists
 
-  if @lists.empty?
+  if List.all.empty?
     puts "No lists entered yet!"
   else
-    @lists.each_with_index do |list, index|
+    List.all.each_with_index do |list, index|
       puts "#{index+1}. #{list.list_name}"
     end
     puts"\n"
-    puts "Choose a number of a list you want to go to."
-    list_number = gets.chomp.to_i
-    @current_list_index = list_number-1
-    puts "You have chosen #{@lists[@current_list_index].list_name}"
+    if List.all.length > 1
+      puts "Enter the number of a list to which you want to go."
+      list_number = gets.chomp.to_i
+      @current_list_index = list_number-1
+      this_list = List.by_index(@current_list_index)
+      puts "You have chosen #{this_list.list_name}"
+    end
   end
   puts "\n"
 end
+
 
 def list_tasks
-  if @lists[@current_list_index].tasks.empty?
-    puts "No tasks entered yet!"
+
+  if List.all.empty?
+    puts "No lists entered yet!"
   else
-    puts "The tasks for #{@lists[@current_list_index].list_name} are:"
-    @lists[@current_list_index].tasks.each_with_index do |element, index|
-      puts "#{index+1}. #{element.description}, priority = #{element.priority.to_s}, " +
-             "due date = #{element.due_date}, completed = #{element.is_done?.to_s}"
-    end
-    puts "\n"
-    puts "Do you want to sort the tasks by priority (enter '1') or due date (enter '2') " +
-         "or not sort (enter 'n') or exit (enter 'x')"
-    option = gets.chomp
-    if option == "1" || option == "2"
-      @lists[@current_list_index].sort_tasks(option.to_i)
-      if option == "1"
-        puts "The tasks for #{@lists[@current_list_index].list_name} sorted by priority are:"
-      else
-        puts "The tasks for #{@lists[@current_list_index].list_name} sorted by due date are:"
-      end
-      @lists[@current_list_index].tasks.each_with_index do |element, index|
-        puts "#{index+1}. #{element.description}, priority = #{element.priority.to_s}, " +
-             "due date = #{element.due_date}, completed = #{element.is_done?.to_s}"
-      end
-    elsif option != "n" && option != "x"
-      puts "Invalid sort option"
-    elsif option == "x"
-      puts "End of to_do list program"
-      exit
+    this_list = List.by_index(@current_list_index)
+    if this_list.tasks.empty?
+      puts "No tasks entered yet!"
     else
-      puts "Have you completed a task? If so, enter its number to mark it as finished."
-      task_to_mark_complete = gets.chomp.to_i
-      if task_to_mark_complete > @lists[@current_list_index].tasks.length || task_to_mark_complete == 0
-        puts "Invalid task number"
-      else
-        @lists[@current_list_index].tasks[task_to_mark_complete-1].mark_as_done
+      puts "The tasks for #{this_list.list_name} are:"
+      this_list.tasks.each_with_index do |element, index|
+        puts "#{index+1}. #{element.description}, priority = #{element.priority.to_s}, " +
+               "due date = #{element.due_date}, completed = #{element.is_done?.to_s}"
+      end
+      puts "\n"
+      puts "Task operations:"
+      puts "   s = sort the list of tasks"
+      puts "   d = mark a task in the list as complete"
+      puts "   l = delete a task from the list"
+      puts "   r = change the description of a task from the list"
+      puts "Other operations:"
+      puts "   m = return to the main menu (this menu)"
+      puts "   x = exit the program"
+      puts "\n"
+      option = gets.chomp
+      if option == "s"
+        sort_tasks(this_list)
+        list_tasks
+      elsif option == "d" || option == "r" || option == "l"
+        change_a_task(this_list, option)
+        list_tasks
+      elsif option == "x"
+        puts "End of to_do list program"
+        exit
+      else option != "m"
+        puts "Invalid option!"
+        list_tasks
       end
     end
   end
+end
 
-  def completed_tasks
 
-  if @lists.empty?
+def sort_tasks(this_list)
+  puts "\n"
+  puts "Sort operations:"
+  puts "   1 = sort the list by priority"
+  puts "   2 = sort the list by due date"
+  puts "\n"
+  option = gets.chomp
+  if option == "1" || option == "2"
+    this_list.sort_tasks(option.to_i)
+    if option == "1"
+      puts "The tasks for #{this_list.list_name} sorted by priority are:"
+    else
+      puts "The tasks for #{this_list.list_name} sorted by due date are:"
+    end
+  else
+    puts "Invalid sort option, please try again!"
+    sort_tasks
+  end
+end
+
+
+def change_a_task(this_list, option)
+
+  puts "Please enter the number of the task you would like to change"
+  task_to_change = gets.chomp.to_i
+  if task_to_change > this_list.tasks.length || task_to_change == 0
+    puts "Invalid task number"
+  elsif option == "d"
+    this_list.tasks[task_to_change-1].mark_as_done
+    puts "Task #{this_list.tasks[task_to_change-1].description} marked as complete"
+  elsif option == "r"
+    puts "Please enter the new description of the task"
+    new_desc = gets.chomp
+    this_list.tasks[task_to_change-1].set_description (new_desc)
+    puts "Task #{this_list.tasks[task_to_change-1].description} has a new description"
+  elsif option == "l"
+    puts "Task #{this_list.tasks[task_to_change-1].description} has been deleted"
+    this_list.tasks[task_to_change-1].delete
+  end
+
+end
+
+
+def completed_tasks
+
+  if List.all.empty?
     puts "There are no lists to check"
   else
-    index_list = 0
     puts "The completed tasks for all lists are:"
-    @lists.each_with_index do |list, index|
-      puts "   List: #{list.list_name}"
-      @lists[index].tasks.each_with_index do |element, index|
+    List.all.each do |list|
+      puts "List: #{list.list_name}"
+      count = 0
+      list.tasks.each_with_index do |element, index|
         if element.is_done?
-          puts "#{index_list+1}. #{element.description}, priority = #{element.priority.to_s}, " +
+          count += 1
+          puts "    #{index+1}. #{element.description}, priority = #{element.priority.to_s}, " +
              "due date = #{element.due_date}, completed = #{element.is_done?.to_s}"
-          index_list += 1
         end
+      end
+      if count == 0
+        puts "    No completed tasks for this list"
       end
     end
   end
   puts "\n"
-end
-
 end
 
 main_menu

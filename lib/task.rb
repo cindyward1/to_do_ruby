@@ -1,6 +1,7 @@
 require "date"
 
 class Task
+
   def initialize (description, priority, due_date)
     @description = description
 
@@ -39,6 +40,10 @@ class Task
 
   def mark_as_done
     @finished = true
+  end
+
+  def set_description (description)
+    @description = description
   end
 
 end

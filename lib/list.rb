@@ -1,6 +1,24 @@
 class List
-  def initialize (list_name)
 
+  @@all_lists = []
+
+  def List.clear
+    @@all_lists = []
+  end
+
+  def List.by_index (index)
+    @@all_lists[index]
+  end
+
+  def List.all
+    @@all_lists
+  end
+
+  def add
+    @@all_lists << self
+  end
+
+  def initialize (list_name)
     @list_name = list_name
     @tasks = []
   end
@@ -21,7 +39,7 @@ class List
     if option == 1
       @tasks.sort! {|task_a, task_b| task_b.priority <=> task_a.priority }
     else # option == 2
-      @tasks.sort! {|task| task.due_date}
+      @tasks.sort! {|task_a, task_b| task_a.due_date <=> task_b.due_date }
     end
   end
 end
