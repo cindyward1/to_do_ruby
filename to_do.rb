@@ -143,14 +143,17 @@ def sort_tasks(this_list)
   puts "Sort operations:"
   puts "   1 = sort the list by priority"
   puts "   2 = sort the list by due date"
+  puts "   3 = sort the list by task name"
   puts "\n"
   option = gets.chomp
-  if option == "1" || option == "2"
+  if option == "1" || option == "2" || option = "3"
     this_list.sort_tasks(option.to_i)
     if option == "1"
-      puts "The tasks for #{this_list.list_name} sorted by priority are:"
-    else
-      puts "The tasks for #{this_list.list_name} sorted by due date are:"
+      puts "Sorted by priority"
+    elsif option == "2"
+      puts "Sorted by due date"
+    elsif option == "3"
+      puts "Sorted by task name"
     end
   else
     puts "Invalid sort option, please try again!"

@@ -38,8 +38,10 @@ class List
   def sort_tasks(option)
     if option == 1
       @tasks.sort! {|task_a, task_b| task_b.priority <=> task_a.priority }
-    else # option == 2
+    elsif option == 2
       @tasks.sort! {|task_a, task_b| task_a.due_date <=> task_b.due_date }
+    elsif option == 3
+      @tasks.sort! {|task_a, task_b| task_a.description <=> task_b.description }
     end
   end
 end
