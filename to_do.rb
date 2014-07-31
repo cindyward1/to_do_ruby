@@ -104,8 +104,10 @@ def list_tasks
     else
       puts "The tasks for #{this_list.list_name} are:"
       this_list.tasks.each_with_index do |element, index|
-        puts "#{index+1}. #{element.description}, priority = #{element.priority.to_s}, " +
+        if !element.is_done?
+          puts "#{index+1}. #{element.description}, priority = #{element.priority.to_s}, " +
                "due date = #{element.due_date}, completed = #{element.is_done?.to_s}"
+        end
       end
       puts "\n"
       puts "Task operations:"
@@ -127,7 +129,7 @@ def list_tasks
       elsif option == "x"
         puts "End of to_do list program"
         exit
-      else option != "m"
+      elsif option != "m"
         puts "Invalid option!"
         list_tasks
       end
@@ -173,7 +175,7 @@ def change_a_task(this_list, option)
     puts "Task #{this_list.tasks[task_to_change-1].description} has a new description"
   elsif option == "l"
     puts "Task #{this_list.tasks[task_to_change-1].description} has been deleted"
-    this_list.tasks[task_to_change-1].delete
+    this_list.tasks.delete_at(task_to_change-1)
   end
 
 end
