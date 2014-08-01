@@ -2,6 +2,11 @@ class List
 
   @@all_lists = []
 
+  def initialize (list_name)
+    @list_name = list_name
+    @tasks = []
+  end
+
   def List.clear
     @@all_lists = []
   end
@@ -14,13 +19,8 @@ class List
     @@all_lists
   end
 
-  def add
+  def save
     @@all_lists << self
-  end
-
-  def initialize (list_name)
-    @list_name = list_name
-    @tasks = []
   end
 
   def list_name

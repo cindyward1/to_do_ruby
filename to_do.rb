@@ -17,25 +17,38 @@ def main_menu
     puts "  +t = add a task to the current list"
     puts "   t = lists all of the tasks for the current list"
     puts "   c = shows all of the completed tasks for all available lists"
+    puts "   s = sort the list of tasks"
+    puts "   d = mark a task in the list as complete"
+    puts "   x = delete a task from the list"
+    puts "   r = change the description of a task"
     puts "Other operations:"
     puts "   m = return to the main menu (this menu)"
-    puts "   x = exit the program"
+    puts "   q = quit the program"
     puts "\n"
 
-    choice = gets.chomp
+    choice = gets.chomp.downcase
 
     if choice == "+l"
       add_list
-    elsif choice == "+t"
-      add_task
     elsif choice == "l"
       list_lists
+    elsif choice == "+t"
+      add_task
     elsif choice == "t"
       list_tasks
     elsif choice == "c"
       completed_tasks
+    elsif choice == "s"
+      sort_tasks
+    elsif choice == "d"
+      change_a_task("d")
     elsif choice == "x"
+      change_a_task("x")
+    elsif choice == "r"
+      change_a_task("r")
+    elsif choice == "q"
       puts "End of to_do list program"
+      puts "\n"
       exit
     elsif choice != "m"
       puts "Invalid input, please try again!"
@@ -48,7 +61,7 @@ end
 def add_list
   puts "Enter a name for your new list"
   list_name = gets.chomp
-  List.new(list_name).add
+  List.new(list_name).save
   @current_list_index = List.all.length-1
 end
 
@@ -109,78 +122,67 @@ def list_tasks
                "due date = #{element.due_date}, completed = #{element.is_done?.to_s}"
         end
       end
-      puts "\n"
-      puts "Task operations:"
-      puts "   s = sort the list of tasks"
-      puts "   d = mark a task in the list as complete"
-      puts "   l = delete a task from the list"
-      puts "   r = change the description of a task from the list"
-      puts "Other operations:"
-      puts "   m = return to the main menu (this menu)"
-      puts "   x = exit the program"
-      puts "\n"
-      option = gets.chomp
-      if option == "s"
-        sort_tasks(this_list)
-        list_tasks
-      elsif option == "d" || option == "r" || option == "l"
-        change_a_task(this_list, option)
-        list_tasks
-      elsif option == "x"
-        puts "End of to_do list program"
-        exit
-      elsif option != "m"
-        puts "Invalid option!"
-        list_tasks
-      end
     end
   end
 end
 
 
-def sort_tasks(this_list)
-  puts "\n"
-  puts "Sort operations:"
-  puts "   1 = sort the list by priority"
-  puts "   2 = sort the list by due date"
-  puts "   3 = sort the list by task name"
-  puts "\n"
-  option = gets.chomp
-  if option == "1" || option == "2" || option = "3"
-    this_list.sort_tasks(option.to_i)
-    if option == "1"
-      puts "Sorted by priority"
-    elsif option == "2"
-      puts "Sorted by due date"
-    elsif option == "3"
-      puts "Sorted by task name"
-    end
+def sort_tasks
+  if List.all.empty?
+    puts "There are no lists to check"
   else
-    puts "Invalid sort option, please try again!"
-    sort_tasks
+    this_list = List.by_index(@current_list_index)
+    list_tasks
+    puts "\n"
+    puts "Sort operations:"
+    puts "   1 = sort the tasks by priority"
+    puts "   2 = sort the tasks by due date"
+    puts "   3 = sort the tasks by task name"
+    puts "\n"
+    option = gets.chomp
+    if option == "1" || option == "2" || option == "3"
+      this_list.sort_tasks(option.to_i)
+      if option == "1"
+        puts "Sorted by priority"
+      elsif option == "2"
+        puts "Sorted by due date"
+      elsif option == "3"
+        puts "Sorted by task name"
+      end
+      list_tasks
+    else
+      puts "Invalid sort option, please try again!"
+      sort_tasks
+    end
   end
 end
 
 
-def change_a_task(this_list, option)
+def change_a_task(option)
 
-  puts "Please enter the number of the task you would like to change"
-  task_to_change = gets.chomp.to_i
-  if task_to_change > this_list.tasks.length || task_to_change == 0
-    puts "Invalid task number"
-  elsif option == "d"
-    this_list.tasks[task_to_change-1].mark_as_done
-    puts "Task #{this_list.tasks[task_to_change-1].description} marked as complete"
-  elsif option == "r"
-    puts "Please enter the new description of the task"
-    new_desc = gets.chomp
-    this_list.tasks[task_to_change-1].set_description (new_desc)
-    puts "Task #{this_list.tasks[task_to_change-1].description} has a new description"
-  elsif option == "l"
-    puts "Task #{this_list.tasks[task_to_change-1].description} has been deleted"
-    this_list.tasks.delete_at(task_to_change-1)
+  if List.all.empty?
+    puts "There are no lists to check"
+  else
+    this_list = List.by_index(@current_list_index)
+    list_tasks
+    puts "Please enter the number of the task you would like to change"
+    task_to_change = gets.chomp.to_i
+    if task_to_change > this_list.tasks.length || task_to_change == 0
+      puts "Invalid task number"
+    elsif option == "d"
+      this_list.tasks[task_to_change-1].mark_as_done
+      puts "Task #{this_list.tasks[task_to_change-1].description} marked as complete"
+    elsif option == "r"
+      puts "Please enter the new description of the task"
+      new_desc = gets.chomp
+      this_list.tasks[task_to_change-1].set_description (new_desc)
+      puts "Task #{this_list.tasks[task_to_change-1].description} has a new description"
+    elsif option == "x"
+      puts "Task #{this_list.tasks[task_to_change-1].description} has been deleted"
+      this_list.tasks.delete_at(task_to_change-1)
+    end
+    list_tasks
   end
-
 end
 
 
